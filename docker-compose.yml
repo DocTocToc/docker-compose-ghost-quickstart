@@ -2,20 +2,22 @@ version: '3'
 
 services:
   nginx:
+    env_file:
+      - .env
     image: nginx:latest
     container_name: nginx
     hostname: ghost-nginx
     ports:
-      - 443:443
+      - 80:8081
     volumes:
-      - ./nginx/ssl/yourhost.xyz.key:/etc/nginx/yourhost.xyz.key:ro
-      - ./nginx/ssl/yourhost.xyz.crt:/etc/nginx/yourhost.xyz.crt:ro
       - ./nginx/conf/ghost.conf:/etc/nginx/conf.d/ghost.conf:z
     links:
       - ghost
     restart: always
 
   ghost:
+    env_file:
+      - .env
     image: ghost:latest
     container_name: ghost
     hostname: ghost
@@ -25,12 +27,14 @@ services:
     expose:
     - "3306"
     environment: # this section can be commented to start in dev mode by default
-      - NODE_ENV=production # set either production or development, then it will load the respective config
+      - NODE_ENV=${NODE_ENV} # set either production or development, then it will load the respective config
     restart: always
     links:
       - mysql
 
   mysql:
+    env_file:
+      - .env
     image: mysql:latest
     container_name: mysql
     volumes:
@@ -39,8 +43,8 @@ services:
       - "3306"
     environment:
       # Beware of special characters in password that can be interpreted by shell
-      - MYSQL_ROOT_PASSWORD= #specify your root pass
-      - MYSQL_DATABASE=ghostdata
-      - MYSQL_USER=ghostusr
-      - MYSQL_PASSWORD= xyx #please change this
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} #specify your root pass
+      - MYSQL_DATABASE=${MYSQL_DATABASE} #hostdata
+      - MYSQL_USER=${MYSQL_USER} #ghostusr
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD} #please change this
     restart: always
